@@ -5,14 +5,21 @@ const vertexShaderSource = `#version 300 es
 
 // an attribute is an input (in) to a vertex shader.
 // It will receive data from a buffer
-in vec4 a_position;
+in vec2 a_position;
 
 // all shaders have a main function
 void main() {
 
-  // gl_Position is a special variable a vertex shader
-  // is responsible for setting
-  gl_Position = a_position;
+  // convert the position from pixels to 0.0 to 1.0
+  vec2 zeroToOne = a_position / vec2(1300, 800);
+
+  // convert from 0->1 to 0->2
+  vec2 zeroToTwo = zeroToOne * 2.0;
+
+  // convert from 0->2 to -1->+1 (clip space)
+  vec2 clipSpace = zeroToTwo - 1.0;
+
+  gl_Position = vec4(clipSpace, 0, 1);
 }
 `
 
@@ -50,6 +57,7 @@ function createShader(gl: WebGL2RenderingContext, type: number, source: string):
     console.log(gl.getShaderInfoLog(shader))
     gl.deleteShader(shader)
   }
+  console.log(shader);
   throw "very bad"
 }
 
@@ -78,19 +86,41 @@ const program = createProgram(webgl, vertexShader, fragmentShader)
 
 const positionAttributeLocation = webgl.getAttribLocation(program, "a_position")
 
-const positionBuffer = webgl.createBuffer()
 
+const height = 800;
+const width = 1300;
+
+const createFloor = (minHeight: number, maxHeight: number, minWidth: number, maxWidth: number, iteration: number) => {
+  const floors: number[] = [];
+  const heightDiff = maxHeight - minHeight;
+  const widthDiff = maxWidth - minWidth;
+
+  const addFloor = (startingX: number, it: number) => {
+    if (it == 0) {
+      return ;
+    }
+    const hs = minHeight + Math.random()*heightDiff;
+    const ws = minWidth + Math.random()*widthDiff;
+    floors.push(startingX);
+    floors.push(minHeight);
+    floors.push(startingX);
+    floors.push(hs);
+    addFloor(startingX + ws, it - 1);
+  }
+
+  addFloor(0, iteration);
+
+  return floors;
+};
+
+const positionBuffer = webgl.createBuffer()
 
 webgl.bindBuffer(webgl.ARRAY_BUFFER, positionBuffer);
 
-const positions = [
-  0, 0,
-  0, 0.5,
-  0.7, 0,
-];
+const positions = createFloor(0, 100, 80, 200, 100).concat(createFloor(800, 700, 80, 200, 100));
+console.log(positions);
 
 webgl.bufferData(webgl.ARRAY_BUFFER, new Float32Array(positions), webgl.STATIC_DRAW);
-
 
 const vao = webgl.createVertexArray();
 
@@ -106,7 +136,6 @@ const offset = 0;        // start at the beginning of the buffer
 webgl.vertexAttribPointer(
         positionAttributeLocation, size, type, normalize, stride, offset)
 
-
 webgl.clearColor(1,1,0,0)
 webgl.clear(webgl.COLOR_BUFFER_BIT)
 
@@ -115,8 +144,8 @@ webgl.bindVertexArray(vao)
 
 
   // draw
-const primitiveType = webgl.TRIANGLES;
-const count = 3;
-webgl.drawArrays(primitiveType, offset, count);
+const primitiveType = webgl.TRIANGLE_STRIP;
+webgl.drawArrays(primitiveType, 0, 200);
+webgl.drawArrays(primitiveType, 200, 200);
 
 console.log('boo')
