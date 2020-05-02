@@ -43,7 +43,8 @@ const webgl = canvas.getContext("webgl2") as WebGL2RenderingContext
 if (!webgl) {
   console.log("NO WEBGL2!")
 }
-
+webgl.canvas.width  = window.innerWidth;
+webgl.canvas.height = window.innerHeight;
 webgl.viewport(0, 0, canvas.width, canvas.height);
 function createShader(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader {
   const shader = gl.createShader(type);
