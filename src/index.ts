@@ -45,9 +45,8 @@ void main() {
 type Vec2 = { x: number, y: number }
 
 const flatten: (vecs: Vec2[]) => number[]
-  = vecs => vecs.flatMap(({x, y})=> [x, y]);
+= vecs => vecs.flatMap(({x, y})=> [x, y]);
 
-const resolution: Vec2 = { x: 1300, y: 800 };
 
 const webgl = canvas.getContext("webgl2") as WebGL2RenderingContext
 
@@ -55,7 +54,13 @@ if (!webgl) {
   console.log("NO WEBGL2!")
 }
 
-webgl.viewport(0, 0, resolution.x, resolution.y);
+const gameResolution: Vec2 = { x: 1300, y: 800 };
+const actualResolution: Vec2 = {
+  x: webgl.canvas.width  = window.innerWidth,
+  y: webgl.canvas.height = window.innerHeight
+}
+
+webgl.viewport(0, 0, canvas.width, canvas.height);
 
 function createShader(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader {
   const shader = gl.createShader(type);
@@ -154,7 +159,7 @@ webgl.clear(webgl.COLOR_BUFFER_BIT)
 
 webgl.useProgram(program)
 webgl.bindVertexArray(vao)
-webgl.uniform2f(resolutionUniformLocation, resolution.x, resolution.y);
+webgl.uniform2f(resolutionUniformLocation, actualResolution.x, actualResolution.y);
 
 
 const go = (scroll: number) => {
