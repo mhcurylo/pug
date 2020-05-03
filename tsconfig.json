@@ -4,7 +4,8 @@
     "strict": true,
     "sourceMap": true,
     "module": "es6",
-    "allowJs": true
+    "allowJs": true,
+    "lib": [ "es2020", "dom" ]
   }
 }
 
