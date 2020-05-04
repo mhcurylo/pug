@@ -53,11 +53,12 @@ const webgl = canvas.getContext("webgl2") as WebGL2RenderingContext
 if (!webgl) {
   console.log("NO WEBGL2!")
 }
-
-const gameResolution: Vec2 = { x: 1300, y: 800 };
+webgl.canvas.width  = window.innerWidth,
+webgl.canvas.height = window.innerHeight
+const gameResolution: Vec2 = { x: 200, y: 100 };
 const actualResolution: Vec2 = {
-  x: webgl.canvas.width  = window.innerWidth,
-  y: webgl.canvas.height = window.innerHeight
+  x: window.innerWidth,
+  y: window.innerHeight
 }
 
 webgl.viewport(0, 0, canvas.width, canvas.height);
